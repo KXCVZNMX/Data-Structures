@@ -2,7 +2,7 @@ use std::fmt::Display;
 use std::ops::{Index, IndexMut};
 use std::thread;
 
-/// This module provides a Slngly Linked List struct
+/// This module provides a Singly Linked List struct
 /// named `ListNode`
 ///
 /// Functions implemented:
@@ -75,8 +75,8 @@ impl<T> ListNode<T> {
         let mut list = ListNode::new(l[0].clone());
         let mut head = &mut list;
         for i in 1..l.len() {
-            let newnode = ListNode::new(l[i].clone());
-            head.next = Some(newnode);
+            let new_node = ListNode::new(l[i].clone());
+            head.next = Some(new_node);
             head = head.next.as_mut().unwrap();
         }
         list
@@ -115,13 +115,13 @@ impl<T> ListNode<T> {
     where
         T: Clone,
     {
-        let newnode = ListNode::new(val);
-        let mut newhead = newnode;
-        newhead.next = Some(Box::new(ListNode {
+        let new_node = ListNode::new(val);
+        let mut new_head = new_node;
+        new_head.next = Some(Box::new(ListNode {
             val: self.val.clone(),
             next: self.next.take(),
         }));
-        *self = *newhead;
+        *self = *new_head;
     }
 
     /// Pushes an instance of `ListNode<T>` to the back of the list
@@ -179,9 +179,9 @@ impl<T> ListNode<T> {
                 .val
                 == val
             {
-                let nextnode = head.next.as_mut().unwrap();
-                if nextnode.val == val {
-                    head.next = nextnode.next.take();
+                let next_node = head.next.as_mut().unwrap();
+                if next_node.val == val {
+                    head.next = next_node.next.take();
                     return Ok(());
                 }
                 return Err("Node not found");
@@ -329,11 +329,11 @@ impl<T> ListNode<T> {
     /// ```
     pub fn insert(&mut self, index: usize, val: T) -> Result<(), &'static str> {
         if index == 0 {
-            let tempnode = Box::new(ListNode {
+            let temp_node = Box::new(ListNode {
                 val,
                 next: self.next.take(),
             });
-            self.next = Some(tempnode);
+            self.next = Some(temp_node);
             std::mem::swap(&mut self.val, &mut self.next.as_mut().unwrap().val);
             return Ok(());
         }
@@ -346,11 +346,11 @@ impl<T> ListNode<T> {
             };
         }
 
-        let tempnode = Box::new(ListNode {
+        let temp_node = Box::new(ListNode {
             val,
             next: head.next.take(),
         });
-        head.next = Some(tempnode);
+        head.next = Some(temp_node);
         Ok(())
     }
 

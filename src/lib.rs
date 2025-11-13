@@ -1,5 +1,5 @@
 //! This crate provides some data structures
-//! implemented by [KXCVZNMX](https://github.com/KXCVZNMX)
+//! implemented by [KXCVZNMX](https://github.com/KXCVZNMX) ([source](https://github.com/KXCVZNMX/Data-Structures))
 //!
 //! Data structures currently implemented:
 //! * Linked List

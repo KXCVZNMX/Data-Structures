@@ -100,8 +100,8 @@ where
     /// ```
     /// # use crate::data_structure::stack::Stack;
     /// let mut stack = Stack::from_vec(vec![1, 1, 2, 3, 4, 5]);
-    /// let poped_val = stack.pop();
-    /// assert_eq!(poped_val, 1);
+    /// let popped_val = stack.pop();
+    /// assert_eq!(popped_val, 1);
     /// ```
     pub fn pop(&mut self) -> T {
         let val = self.list.pop().unwrap();
