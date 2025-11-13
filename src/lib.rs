@@ -98,7 +98,7 @@ mod test {
         assert_eq!(s2.list, Stack::from_vec(vec![1, 2, 3, 4, 5]).list);
 
         let s3 = Stack::from_vec(vec![1, 2, 3, 4, 5]);
-        let comp = s3.peak();
+        let comp = s3.peek();
         assert_eq!(comp, 1);
     }
 }

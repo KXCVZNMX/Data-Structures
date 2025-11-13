@@ -150,11 +150,11 @@ where
     /// ```
     /// # use crate::data_structure::stack::Stack;
     /// let stack = Stack::from_vec(vec![1, 2, 3, 4, 5]);
-    /// let peak_val = stack.peak();
+    /// let peak_val = stack.peek();
     /// assert_eq!(peak_val, 1);
     /// assert_eq!(stack, Stack::from_vec(vec![1, 2, 3, 4, 5]));
     /// ```
-    pub fn peak(&self) -> T
+    pub fn peek(&self) -> T
     where
         T: Clone,
     {
