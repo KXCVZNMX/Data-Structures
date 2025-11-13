@@ -35,7 +35,7 @@ impl<T> ListNode<T> {
     /// # Example
     /// ```
     /// # use crate::data_structure::linked_list::ListNode;
-    /// let linked_list: Box<ListNode<i32>> = ListNode::with();
+    /// let linked_list: Box<ListNode<i32>> = ListNode::new();
     /// assert_eq!(linked_list, Box::new( ListNode{val: i32::default(), next: None}))
     /// ```
     pub fn new() -> Box<Self> where T: Default {
