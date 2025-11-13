@@ -29,13 +29,13 @@ where
     /// # use crate::data_structure::stack::Stack;
     /// # use crate::data_structure::linked_list::ListNode;
     /// let stack = Stack::new(1);
-    /// assert_eq!(stack, Stack{list: ListNode::new(1), len: 1});
+    /// assert_eq!(stack, Stack{list: ListNode::with(1), len: 1});
     /// ```
     ///
     /// There cannot be an empty stack if you are initialising it.
     pub fn new(val: T) -> Self {
         Stack {
-            list: ListNode::new(val),
+            list: ListNode::with(val),
             len: 1,
         }
     }
@@ -134,13 +134,13 @@ where
     ///
     /// let mut stack = Stack::from_vec(vec![1, 2, 3, 4, 5]);
     /// stack.clear();
-    /// assert_eq!(stack, Stack{len: 1, list: ListNode::new(i32::default())});
+    /// assert_eq!(stack, Stack{len: 1, list: ListNode::with(i32::default())});
     /// ```
     pub fn clear(&mut self)
     where
         T: Default,
     {
-        self.list = ListNode::new(T::default());
+        self.list = ListNode::with(T::default());
         self.len = 1;
     }
 

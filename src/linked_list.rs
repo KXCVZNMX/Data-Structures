@@ -28,19 +28,30 @@ pub struct ListNode<T> {
 }
 
 impl<T> ListNode<T> {
+    /// Constructs a new instance of `ListNode<T>` with the 
+    /// default value of whatever `T` is, whereby, `T` has to implement
+    /// `Default`
+    /// 
+    /// # Example
+    /// ```
+    /// # use crate::data_structure::linked_list::ListNode;
+    /// let linked_list: Box<ListNode<i32>> = ListNode::with();
+    /// assert_eq!(linked_list, Box::new( ListNode{val: i32::default(), next: None}))
+    /// ```
+    pub fn new() -> Box<Self> where T: Default {
+        Box::new(ListNode::default())
+    }
+    
     /// Constructs a new instance of `ListNode<T>` with
     /// the provided `val: T`, returning `Box<ListNode<T>>`
     ///
     /// # Example
     /// ```
     /// # use crate::data_structure::linked_list::ListNode;
-    /// let linked_list = ListNode::new(0);
+    /// let linked_list = ListNode::with(0);
     /// assert_eq!(linked_list, Box::new( ListNode{ val: 0, next: None } ));
     /// ```
-    ///
-    /// Variable `linked_list` will have a value of `0`
-    /// and next pointing to `None`:
-    pub fn new(val: T) -> Box<Self> {
+    pub fn with(val: T) -> Box<Self> {
         Box::new(ListNode { val, next: None })
     }
 
@@ -72,10 +83,10 @@ impl<T> ListNode<T> {
             panic!("Vector can't be empty");
         }
 
-        let mut list = ListNode::new(l[0].clone());
+        let mut list = ListNode::with(l[0].clone());
         let mut head = &mut list;
         for i in 1..l.len() {
-            let new_node = ListNode::new(l[i].clone());
+            let new_node = ListNode::with(l[i].clone());
             head.next = Some(new_node);
             head = head.next.as_mut().unwrap();
         }
@@ -115,7 +126,7 @@ impl<T> ListNode<T> {
     where
         T: Clone,
     {
-        let new_node = ListNode::new(val);
+        let new_node = ListNode::with(val);
         let mut new_head = new_node;
         new_head.next = Some(Box::new(ListNode {
             val: self.val.clone(),
@@ -140,7 +151,7 @@ impl<T> ListNode<T> {
         let mut head = self;
         loop {
             if head.next.is_none() {
-                head.next = Some(ListNode::new(val));
+                head.next = Some(ListNode::with(val));
                 break;
             }
             head = head.next.as_deref_mut().unwrap();
@@ -413,7 +424,7 @@ impl<T> ListNode<T> {
     /// let temp2 = ListNode::from_vec(vec![2, 4, 5]);
     /// let list = ListNode::<i32>::merge(Some(temp1), Some(temp2))?;
     /// assert_eq!(list, ListNode::from_vec(vec![1, 2, 3, 4, 5]));
-    /// # Some(ListNode::new(0))
+    /// # Some(ListNode::with(0))
     /// # }
     /// ```
     pub fn merge(
@@ -475,7 +486,7 @@ impl<T> ListNode<T> {
     /// # fn foo() -> Option<Box<ListNode<i32>>> {
     /// let list = ListNode::<i32>::sort(Some(ListNode::from_vec(vec![5, 2, 3, 1, 4])))?;
     /// assert_eq!(list, ListNode::from_vec(vec![1, 2, 3, 4, 5]));
-    /// # Some(ListNode::new(0))
+    /// # Some(ListNode::with(0))
     /// # }
     /// ```
     pub fn sort(head: Option<Box<ListNode<i32>>>) -> Option<Box<ListNode<i32>>> {
@@ -537,5 +548,11 @@ impl<T: PartialEq> PartialEq for ListNode<T> {
             other_head = other_current.next.as_deref();
         }
         head.is_none() && other_head.is_none()
+    }
+}
+
+impl<T: Default> Default for ListNode<T> {
+    fn default() -> Self {
+        Self {val: T::default(), next: None}
     }
 }

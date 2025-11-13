@@ -7,6 +7,7 @@
 
 pub mod linked_list;
 pub mod stack;
+mod tree;
 
 #[cfg(test)]
 mod test {
@@ -15,7 +16,7 @@ mod test {
 
     #[test]
     fn test_linked_list() {
-        let mut l1 = ListNode::new(1);
+        let mut l1 = ListNode::with(1);
         let temp = ListNode::from_vec(vec![2, 3, 4, 5]);
         l1.next = Some(temp);
         assert_eq!(l1, ListNode::from_vec(vec![1, 2, 3, 4, 5]));
@@ -67,7 +68,7 @@ mod test {
         assert_eq!(l11, ListNode::from_vec(vec![1, 2, 3, 4, 5]));
 
         let mut l12 = ListNode::from_vec(vec![1, 1, 2, 3, 4, 5]);
-        let _poped = l12.pop().unwrap();
+        let _popped = l12.pop().unwrap();
         assert_eq!(l12, ListNode::from_vec(vec![1, 2, 3, 4, 5]));
 
         let l13 = ListNode::from_vec(vec![1, 2, 3, 4, 5]);
