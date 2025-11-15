@@ -10,9 +10,9 @@ pub struct BST<T>
 where
     T: PartialOrd + PartialEq + Clone + Copy + Display + Debug
 {
-    pub val: T,
-    pub left: Option<Box<BST<T>>>,
-    pub right: Option<Box<BST<T>>>,
+    val: T,
+    left: Option<Box<BST<T>>>,
+    right: Option<Box<BST<T>>>,
 }
 
 impl<T> BST<T>
@@ -43,29 +43,32 @@ where
         }
     }
 
-    pub fn from_vec(v: &mut Vec<T>) -> Box<Self> {
-        v.sort_unstable_by(|a, b| a.partial_cmp(b).unwrap());
+    fn build<K>(arr: &[K]) -> Option<Box<BST<K>>>
+    where
+        K: PartialOrd + PartialEq + Clone + Copy + Display + Debug,
+    {
+        if arr.is_empty() { return None; }
+        let mid = arr.len() / 2;
+        let mut node = BST::new(arr[mid]);
 
-        fn build<K>(arr: &[K]) -> Option<Box<BST<K>>>
-        where
-            K: PartialOrd + PartialEq + Clone + Copy + Display + Debug,
-        {
-            if arr.is_empty() { return None; }
-            let mid = arr.len() / 2;
-            let mut node = BST::new(arr[mid]);
-
-            if let Some(left) = build(&arr[..mid]) {
-                node.left = Some(left);
-            }
-
-            if let Some(right) = build(&arr[mid + 1..]) {
-                node.right = Some(right);
-            }
-
-            Some(node)
+        if let Some(left) = Self::build(&arr[..mid]) {
+            node.left = Some(left);
         }
 
-        build(v).unwrap()
+        if let Some(right) = Self::build(&arr[mid + 1..]) {
+            node.right = Some(right);
+        }
+
+        Some(node)
+    }
+
+    pub fn from_vec(v: &mut Vec<T>) -> Box<Self> {
+        Self::build(v).unwrap()
+    }
+
+    pub fn from_vec_unsorted(v: &mut Vec<T>) -> Box<Self> {
+        v.sort_unstable_by(|a, b| a.partial_cmp(b).unwrap());
+        Self::build(v).unwrap()
     }
 
     pub fn from_vec_unbalanced(v: Vec<T>) -> Box<Self> {
@@ -98,8 +101,49 @@ where
         )
     }
 
-    pub fn delete(&self, val: &T) -> Result<(), &'static str> {
-        todo!()
+    fn delete_root(mut root: Box<Self>) -> Option<Box<Self>> {
+        if root.left.is_none() {
+            return root.right;
+        }
+        if root.right.is_none() {
+            return root.left;
+        }
+
+        let succ = {
+            let mut curr = root.right.as_ref().unwrap();
+            while let Some(ref l) = curr.left {
+                curr = l;
+            }
+            curr.val
+        };
+
+        root.val = succ;
+        let right = root.right.take().unwrap();
+        root.right = right.delete(succ);
+
+        Some(root)
+    }
+
+    pub fn delete(self: Box<Self>, target: T) -> Option<Box<Self>> {
+        match target.partial_cmp(&self.val).unwrap_or(std::cmp::Ordering::Equal) {
+            std::cmp::Ordering::Less => {
+                let mut node = self;
+                if let Some(left) = node.left.take() {
+                    node.left = left.delete(target);
+                }
+                Some(node)
+            }
+
+            std::cmp::Ordering::Greater => {
+                let mut node = self;
+                if let Some(right) = node.right.take() {
+                    node.right = right.delete(target);
+                }
+                Some(node)
+            }
+
+            std::cmp::Ordering::Equal => Self::delete_root(self),
+        }
     }
 
     pub fn find(&self, val: &T) -> Option<&Self>{
