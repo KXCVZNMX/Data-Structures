@@ -5,21 +5,71 @@ pub trait Visualise<T> {
     fn print(&self);
 }
 
+pub trait BSTrees<T>
+where
+    T: PartialOrd + PartialEq + Clone + Copy + Display + Debug,
+{
+    fn new(val: T) -> Box<Self>;
+    fn val(&self) -> T;
+    fn left(&self) -> Option<&Box<Self>>;
+    fn left_mut(&mut self) -> &mut Option<Box<Self>>;
+    fn right(&self) -> Option<&Box<Self>>;
+    fn right_mut(&mut self) -> &mut Option<Box<Self>>;
+
+    fn insert(&mut self, val: T);
+    fn build(arr: &[T]) -> Option<Box<Self>>;
+    fn from_vec(v: &mut Vec<T>) -> Box<Self>;
+    fn from_vec_unsorted(v: &mut Vec<T>) -> Box<Self>;
+    fn from_vec_unbalanced(v: &mut Vec<T>) -> Box<Self>;
+    fn min(&self) -> T {
+        match self.left() {
+            Some(left) => left.min(),
+            None => self.val(),
+        }
+    }
+    fn max(&self) -> T {
+        match self.right() {
+            Some(right) => right.max(),
+            None => self.val(),
+        }
+    }
+    fn height(&self) -> usize {
+        1 + std::cmp::max(
+            self.left().map_or(0, |n| n.height()),
+            self.right().map_or(0, |n| n.height()),
+        )
+    }
+    fn find(&self, val: &T) -> Option<&Self> {
+        if *val == self.val() {
+            Some(self)
+        } else if *val < self.val() {
+            self.left()?.find(val)
+        } else {
+            self.right()?.find(val)
+        }
+    }
+    fn contains(&self, val: &T) -> bool {
+        self.find(val).is_some()
+    }
+    fn delete_root(root: Box<Self>) -> Option<Box<Self>>;
+    fn delete(self: Box<Self>, target: T) -> Option<Box<Self>>;
+}
+
 #[derive(Debug)]
 pub struct BST<T>
 where
-    T: PartialOrd + PartialEq + Clone + Copy + Display + Debug
+    T: PartialOrd + PartialEq + Clone + Copy + Display + Debug,
 {
     val: T,
     left: Option<Box<BST<T>>>,
     right: Option<Box<BST<T>>>,
 }
 
-impl<T> BST<T>
+impl<T> BSTrees<T> for BST<T>
 where
-    T: PartialOrd + PartialEq + Clone + Copy + Display + Debug
+    T: PartialOrd + PartialEq + Clone + Copy + Display + Debug,
 {
-    pub fn new(val: T) -> Box<Self> {
+    fn new(val: T) -> Box<Self> {
         Box::new(Self {
             val,
             left: None,
@@ -27,7 +77,27 @@ where
         })
     }
 
-    pub fn insert(&mut self, val: T) {
+    fn val(&self) -> T {
+        self.val
+    }
+
+    fn left(&self) -> Option<&Box<Self>> {
+        self.left.as_ref()
+    }
+
+    fn left_mut(&mut self) -> &mut Option<Box<Self>> {
+        &mut self.left
+    }
+
+    fn right(&self) -> Option<&Box<Self>> {
+        self.right.as_ref()
+    }
+
+    fn right_mut(&mut self) -> &mut Option<Box<Self>> {
+        &mut self.right
+    }
+
+    fn insert(&mut self, val: T) {
         if val < self.val {
             if self.left.is_some() {
                 self.left.as_mut().unwrap().insert(val);
@@ -43,11 +113,10 @@ where
         }
     }
 
-    fn build<K>(arr: &[K]) -> Option<Box<BST<K>>>
-    where
-        K: PartialOrd + PartialEq + Clone + Copy + Display + Debug,
-    {
-        if arr.is_empty() { return None; }
+    fn build(arr: &[T]) -> Option<Box<BST<T>>> {
+        if arr.is_empty() {
+            return None;
+        }
         let mid = arr.len() / 2;
         let mut node = BST::new(arr[mid]);
 
@@ -62,43 +131,22 @@ where
         Some(node)
     }
 
-    pub fn from_vec(v: &mut Vec<T>) -> Box<Self> {
+    fn from_vec(v: &mut Vec<T>) -> Box<Self> {
         Self::build(v).unwrap()
     }
 
-    pub fn from_vec_unsorted(v: &mut Vec<T>) -> Box<Self> {
+    fn from_vec_unsorted(v: &mut Vec<T>) -> Box<Self> {
         v.sort_unstable_by(|a, b| a.partial_cmp(b).unwrap());
         Self::build(v).unwrap()
     }
 
-    pub fn from_vec_unbalanced(v: Vec<T>) -> Box<Self> {
+    fn from_vec_unbalanced(v: &mut Vec<T>) -> Box<Self> {
         let mut b = BST::new(v[0]);
         for i in 1..v.len() {
             b.insert(v[i]);
         }
 
         b
-    }
-
-    pub fn min(&self) -> &T {
-        match &self.left {
-            Some(left) => left.min(),
-            None => &self.val,
-        }
-    }
-
-    pub fn max(&self) -> &T {
-        match &self.right {
-            Some(right) => right.max(),
-            None => &self.val,
-        }
-    }
-
-    pub fn height(&self) -> usize {
-        1 + usize::max(
-            self.left.as_ref().map_or(0, |n| n.height()),
-            self.right.as_ref().map_or(0, |n| n.height())
-        )
     }
 
     fn delete_root(mut root: Box<Self>) -> Option<Box<Self>> {
@@ -124,8 +172,11 @@ where
         Some(root)
     }
 
-    pub fn delete(self: Box<Self>, target: T) -> Option<Box<Self>> {
-        match target.partial_cmp(&self.val).unwrap_or(std::cmp::Ordering::Equal) {
+    fn delete(self: Box<Self>, target: T) -> Option<Box<Self>> {
+        match target
+            .partial_cmp(&self.val)
+            .unwrap_or(std::cmp::Ordering::Equal)
+        {
             std::cmp::Ordering::Less => {
                 let mut node = self;
                 if let Some(left) = node.left.take() {
@@ -145,30 +196,20 @@ where
             std::cmp::Ordering::Equal => Self::delete_root(self),
         }
     }
-
-    pub fn find(&self, val: &T) -> Option<&Self>{
-        if self.val == *val {
-            Some(&self)
-        } else if *val >= self.val {
-            self.right.as_ref()?.find(val)
-        } else {
-            self.left.as_ref()?.find(val)
-        }
-    }
-
-    pub fn contains(&self, val: &T) -> bool {
-        self.find(&val).is_some()
-    }
 }
 
 impl<T> Visualise<T> for BST<T>
 where
-    T: PartialOrd + PartialEq + Clone + Copy + Display + Debug
+    T: PartialOrd + PartialEq + Clone + Copy + Display + Debug,
 {
     fn inorder(&self, level: usize, v: &mut Vec<(usize, T)>) {
-        if let Some(ref left) = self.left { left.inorder(level + 1, v); }
+        if let Some(ref left) = self.left {
+            left.inorder(level + 1, v);
+        }
         v.push((level, self.val.clone()));
-        if let Some(ref right) = self.right { right.inorder(level + 1, v); }
+        if let Some(ref right) = self.right {
+            right.inorder(level + 1, v);
+        }
     }
 
     fn print(&self) {
