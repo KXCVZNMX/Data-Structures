@@ -1,5 +1,8 @@
 use std::fmt::{Debug, Display};
 
+pub trait BSTValue: PartialOrd + PartialEq + Clone + Copy + Display + Debug {}
+impl<T> BSTValue for T where T: PartialOrd + PartialEq + Clone + Copy + Display + Debug {}
+
 pub trait Visualise<T> {
     fn inorder(&self, level: usize, v: &mut Vec<(usize, T)>);
     fn print(&self);
@@ -7,7 +10,7 @@ pub trait Visualise<T> {
 
 pub trait BSTrees<T>
 where
-    T: PartialOrd + PartialEq + Clone + Copy + Display + Debug,
+    T: BSTValue
 {
     fn new(val: T) -> Box<Self>;
     fn val(&self) -> T;
@@ -58,16 +61,18 @@ where
 #[derive(Debug)]
 pub struct BST<T>
 where
-    T: PartialOrd + PartialEq + Clone + Copy + Display + Debug,
+    T: BSTValue
 {
     val: T,
     left: Option<Box<BST<T>>>,
     right: Option<Box<BST<T>>>,
 }
 
+
+
 impl<T> BSTrees<T> for BST<T>
 where
-    T: PartialOrd + PartialEq + Clone + Copy + Display + Debug,
+    T: BSTValue
 {
     fn new(val: T) -> Box<Self> {
         Box::new(Self {
@@ -200,7 +205,7 @@ where
 
 impl<T> Visualise<T> for BST<T>
 where
-    T: PartialOrd + PartialEq + Clone + Copy + Display + Debug,
+    T: BSTValue
 {
     fn inorder(&self, level: usize, v: &mut Vec<(usize, T)>) {
         if let Some(ref left) = self.left {
