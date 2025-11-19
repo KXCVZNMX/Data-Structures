@@ -51,7 +51,7 @@ impl<T> LinkedList<T> {
             marker: PhantomData
         }
     }
-    
+
     pub fn append(&mut self, other: &mut Self) {
         match self.tail {
             None => mem::swap(self, other),
@@ -83,19 +83,19 @@ impl<T, A: Allocator> LinkedList<T, A> {
     pub fn len(&self) -> usize {
         self.len
     }
-    
+
     pub fn head(&self) -> Option<&T> {
         unsafe {
             Some(&(*self.head?.as_ptr()).val)
         }
     }
-    
+
     pub fn head_mut(&self) -> Option<&mut T> {
         unsafe {
             Some(&mut (*self.head?.as_mut()).val)
         }
     }
-    
+
     pub fn tail(&self) -> Option<&T> {
         unsafe {
             Some(&(*self.tail?.as_ptr()).val)
@@ -107,7 +107,7 @@ impl<T, A: Allocator> LinkedList<T, A> {
             Some(&mut (*self.tail?.as_mut()).val)
         }
     }
-    
+
     pub fn push_front(&mut self, val: T) {
         unsafe {
             let new_node = NonNull::from(Box::leak(Box::new_in(Node::new(val), &self.alloc)));
@@ -135,20 +135,20 @@ impl<T, A: Allocator> LinkedList<T, A> {
             self.len += 1;
         }
     }
-    
+
     pub fn pop_front(&mut self) -> Option<T> {
         unsafe {
             self.head.map(|node| {
                 let box_node = Box::from_raw(node.as_ptr());
                 let result = box_node.val;
-                
+
                 self.head = box_node.next;
                 if let Some(new) = self.head {
                     (*new.as_ptr()).prev = None;
                 } else {
                     self.tail = None;
                 }
-                
+
                 self.len -= 1;
                 result
             })
@@ -178,7 +178,7 @@ impl<T, A: Allocator> LinkedList<T, A> {
         Iter { head: self.head, tail: self.tail, len: self.len, marker: PhantomData }
     }
 
-    pub fn iter_mut(&self) -> IterMut<'_, T> { 
+    pub fn iter_mut(&self) -> IterMut<'_, T> {
         IterMut { head: self.head, tail: self.tail, len: self.len, marker: PhantomData }
     }
 
@@ -202,21 +202,21 @@ impl<'a, T, A: Allocator> IntoIterator for &'a LinkedList<T, A> {
     }
 }
 
-impl<'a, T, A: Allocator> IntoIterator for &'a mut LinkedList<T, A> {
-    type Item = &'a mut T;
-    type IntoIter = IterMut<'a, T>;
-
-    fn into_iter(self) -> Self::IntoIter {
-        self.iter_mut()
-    }
-}
-
 impl<T, A: Allocator> IntoIterator for LinkedList<T, A> {
     type Item = T;
     type IntoIter = IntoIter<T, A>;
 
     fn into_iter(self) -> Self::IntoIter {
         self.into_iter()
+    }
+}
+
+impl<'a, T, A: Allocator> IntoIterator for &'a mut LinkedList<T, A> {
+    type Item = &'a mut T;
+    type IntoIter = IterMut<'a, T>;
+
+    fn into_iter(self) -> Self::IntoIter {
+        self.iter_mut()
     }
 }
 
@@ -240,18 +240,6 @@ impl<'a, T> Iterator for Iter<'a, T> {
     }
 }
 
-impl<T, A: Allocator> Iterator for IntoIter<T, A> {
-    type Item = T;
-
-    fn next(&mut self) -> Option<Self::Item> {
-        self.list.pop_front()
-    }
-
-    fn size_hint(&self) -> (usize, Option<usize>) {
-        (self.list.len, Some(self.list.len))
-    }
-}
-
 impl<'a, T> Iterator for IterMut<'a, T> {
     type Item = &'a mut T;
 
@@ -269,6 +257,18 @@ impl<'a, T> Iterator for IterMut<'a, T> {
 
     fn size_hint(&self) -> (usize, Option<usize>) {
         (self.len, Some(self.len))
+    }
+}
+
+impl<T, A: Allocator> Iterator for IntoIter<T, A> {
+    type Item = T;
+
+    fn next(&mut self) -> Option<Self::Item> {
+        self.list.pop_front()
+    }
+
+    fn size_hint(&self) -> (usize, Option<usize>) {
+        (self.list.len, Some(self.list.len))
     }
 }
 
