@@ -185,6 +185,102 @@ impl<T, A: Allocator> LinkedList<T, A> {
     pub fn into_iter(self) -> IntoIter<T, A> {
         IntoIter { list: self }
     }
+
+    pub fn is_empty(&self) -> bool {
+        self.len == 0
+    }
+
+    pub fn clear(&mut self) {
+        while let Some(_) = self.pop_front() {}
+    }
+
+    pub fn contains(&self, val: &T) -> bool
+    where
+        T: PartialEq<T>
+    {
+        self.iter().any(|e| e == val)
+    }
+
+    pub fn split_off(&mut self, at: usize) -> LinkedList<T, A>
+    where A: Clone
+    {
+        let len = self.len();
+        assert!(at <= len, "LinkedList::split_off(): cannot split off, out of bounds");
+
+        if at == 0 {
+            return mem::replace(self, Self::new_in(self.alloc.clone()))
+        } else if at == len {
+            return Self::new_in(self.alloc.clone())
+        }
+
+        let split_node = if at - 1 <= len - at {
+            let mut iter = self.iter_mut();
+            for _ in 0..(at - 1) {
+                iter.next();
+            }
+            iter.head
+        } else {
+            let mut iter = self.iter_mut();
+            for _ in 0..(len - at) {
+                iter.next_back();
+            }
+            iter.tail
+        };
+
+        let split_node = split_node.expect("LinkedList::split_off(): split_node is in None");
+
+        unsafe {
+            let new_head = (*split_node.as_ptr()).next.take().expect("LinkedList::split_off(): split_node is None");
+            (*new_head.as_ptr()).prev = None;
+            let ret = LinkedList {
+                head: Some(new_head),
+                tail: self.tail,
+                len: len - at,
+                alloc: self.alloc.clone(),
+                marker: PhantomData
+            };
+            (*split_node.as_ptr()).next = None;
+            self.tail = Some(split_node);
+            self.len = at;
+            ret
+        }
+
+        todo!()
+    }
+
+    pub fn remove(&mut self, at: usize) -> T {
+        let len = self.len;
+
+        assert!(at <= self.len, "LinkedList::remove(): Unable to remove element out of bounds");
+
+        if at == 0 {
+            return self.pop_front().unwrap();
+        } else if at == len {
+            return self.pop_back().unwrap();
+        }
+
+        let delete_node = if at - 1 <= len - at {
+            let mut iter = self.iter_mut();
+            for _ in 0..(at - 1) {
+                iter.next();
+            }
+            iter.head
+        } else {
+            let mut iter = self.iter_mut();
+            for _ in 0..(len - at) {
+                iter.next_back();
+            }
+            iter.tail
+        };
+
+        let delete_node = delete_node.expect("LinkedList::delete(): delete_node is in None");
+
+        unsafe {
+
+        }
+
+        todo!()
+    }
 }
 
 impl<T, A: Allocator> Drop for LinkedList<T, A> {
