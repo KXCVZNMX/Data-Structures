@@ -178,7 +178,7 @@ impl<T, A: Allocator> LinkedList<T, A> {
         Iter { head: self.head, tail: self.tail, len: self.len, marker: PhantomData }
     }
 
-    pub fn iter_mut(&self) -> IterMut<'_, T> {
+    pub fn iter_mut(&mut self) -> IterMut<'_, T> {
         IterMut { head: self.head, tail: self.tail, len: self.len, marker: PhantomData }
     }
 
