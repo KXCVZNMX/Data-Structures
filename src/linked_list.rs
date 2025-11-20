@@ -90,7 +90,7 @@ impl<T, A: Allocator> LinkedList<T, A> {
         }
     }
 
-    pub fn head_mut(&self) -> Option<&mut T> {
+    pub fn head_mut(&mut self) -> Option<&mut T> {
         unsafe {
             Some(&mut (*self.head?.as_mut()).val)
         }
