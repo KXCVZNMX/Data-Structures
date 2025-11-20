@@ -158,7 +158,7 @@ impl<T, A: Allocator> LinkedList<T, A> {
     pub fn pop_back(&mut self) -> Option<T> {
         unsafe {
             self.tail.map(|node| {
-                let box_node = Box::from_raw(node.as_ptr());
+                let box_node = Box::from_raw_in(node.as_ptr(), &self.alloc);
                 let result = box_node.val;
 
                 self.head = box_node.prev;
