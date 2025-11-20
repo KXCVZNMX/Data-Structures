@@ -323,7 +323,7 @@ impl<'a, T> Iterator for Iter<'a, T> {
         if self.len > 0 {
             self.head.map(|node| unsafe {
                 self.len -= 1;
-                self.head = (*node.as_ptr()).prev;
+                self.head = (*node.as_ptr()).next;
                 &(*node.as_ptr()).val
             })
         } else {
@@ -343,7 +343,7 @@ impl<'a, T> Iterator for IterMut<'a, T> {
         if self.len > 0 {
             self.head.map(|node| unsafe {
                 self.len -= 1;
-                self.head = (*node.as_ptr()).prev;
+                self.head = (*node.as_ptr()).next;
                 &mut (*node.as_ptr()).val
             })
         } else {
@@ -373,7 +373,7 @@ impl<'a, T> DoubleEndedIterator for Iter<'a, T> {
         if self.len > 0 {
             self.head.map(|node| unsafe {
                 self.len -= 1;
-                self.tail = (*node.as_ptr()).next;
+                self.tail = (*node.as_ptr()).prev;
                 &(*node.as_ptr()).val
             })
         } else {
@@ -387,7 +387,7 @@ impl<'a, T> DoubleEndedIterator for IterMut<'a, T> {
         if self.len > 0 {
             self.head.map(|node| unsafe {
                 self.len -= 1;
-                self.tail = (*node.as_ptr()).next;
+                self.tail = (*node.as_ptr()).prev;
                 &mut (*node.as_ptr()).val
             })
         } else {
