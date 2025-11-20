@@ -102,7 +102,7 @@ impl<T, A: Allocator> LinkedList<T, A> {
         }
     }
 
-    pub fn tail_mut(&self) -> Option<&mut T> {
+    pub fn tail_mut(&mut self) -> Option<&mut T> {
         unsafe {
             Some(&mut (*self.tail?.as_mut()).val)
         }
