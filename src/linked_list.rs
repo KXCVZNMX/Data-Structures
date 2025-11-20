@@ -334,6 +334,26 @@ impl<'a, T> Iterator for Iter<'a, T> {
     }
 }
 
+impl<'a, T> DoubleEndedIterator for Iter<'a, T> {
+    fn next_back(&mut self) -> Option<Self::Item> {
+        if self.len > 0 {
+            self.tail.map(|node| unsafe {
+                self.len -= 1;
+                self.tail = (*node.as_ptr()).prev;
+                &(*node.as_ptr()).val
+            })
+        } else {
+            None
+        }
+    }
+}
+
+impl<'a, T> ExactSizeIterator for Iter<'a, T> {
+    fn len(&self) -> usize {
+        self.len
+    }
+}
+
 impl<'a, T> Iterator for IterMut<'a, T> {
     type Item = &'a mut T;
 
@@ -354,6 +374,26 @@ impl<'a, T> Iterator for IterMut<'a, T> {
     }
 }
 
+impl<'a, T> DoubleEndedIterator for IterMut<'a, T> {
+    fn next_back(&mut self) -> Option<Self::Item> {
+        if self.len > 0 {
+            self.tail.map(|node| unsafe {
+                self.len -= 1;
+                self.tail = (*node.as_ptr()).prev;
+                &mut (*node.as_ptr()).val
+            })
+        } else {
+            None
+        }
+    }
+}
+
+impl<'a, T> ExactSizeIterator for IterMut<'a, T> {
+    fn len(&self) -> usize {
+        self.len
+    }
+}
+
 impl<T, A: Allocator> Iterator for IntoIter<T, A> {
     type Item = T;
 
@@ -366,49 +406,9 @@ impl<T, A: Allocator> Iterator for IntoIter<T, A> {
     }
 }
 
-impl<'a, T> DoubleEndedIterator for Iter<'a, T> {
-    fn next_back(&mut self) -> Option<Self::Item> {
-        if self.len > 0 {
-            self.head.map(|node| unsafe {
-                self.len -= 1;
-                self.tail = (*node.as_ptr()).prev;
-                &(*node.as_ptr()).val
-            })
-        } else {
-            None
-        }
-    }
-}
-
-impl<'a, T> DoubleEndedIterator for IterMut<'a, T> {
-    fn next_back(&mut self) -> Option<Self::Item> {
-        if self.len > 0 {
-            self.head.map(|node| unsafe {
-                self.len -= 1;
-                self.tail = (*node.as_ptr()).prev;
-                &mut (*node.as_ptr()).val
-            })
-        } else {
-            None
-        }
-    }
-}
-
 impl<T, A: Allocator> DoubleEndedIterator for IntoIter<T, A> {
     fn next_back(&mut self) -> Option<Self::Item> {
         self.list.pop_back()
-    }
-}
-
-impl<'a, T> ExactSizeIterator for Iter<'a, T> {
-    fn len(&self) -> usize {
-        self.len
-    }
-}
-
-impl<'a, T> ExactSizeIterator for IterMut<'a, T> {
-    fn len(&self) -> usize {
-        self.len
     }
 }
 
