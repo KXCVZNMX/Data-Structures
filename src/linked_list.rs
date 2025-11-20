@@ -245,40 +245,6 @@ impl<T, A: Allocator> LinkedList<T, A> {
             ret
         }
     }
-
-    pub fn remove(&mut self, at: usize) -> T {
-        let len = self.len;
-
-        assert!(at <= self.len, "LinkedList::remove(): Unable to remove element out of bounds");
-
-        if at == 0 {
-            return self.pop_front().unwrap();
-        } else if at == len {
-            return self.pop_back().unwrap();
-        }
-
-        let delete_node = if at - 1 <= len - at {
-            let mut iter = self.iter_mut();
-            for _ in 0..(at - 1) {
-                iter.next();
-            }
-            iter.head
-        } else {
-            let mut iter = self.iter_mut();
-            for _ in 0..(len - at) {
-                iter.next_back();
-            }
-            iter.tail
-        };
-
-        let delete_node = delete_node.expect("LinkedList::delete(): delete_node is in None");
-
-        unsafe {
-
-        }
-
-        todo!()
-    }
 }
 
 impl<T, A: Allocator> Drop for LinkedList<T, A> {
