@@ -244,8 +244,6 @@ impl<T, A: Allocator> LinkedList<T, A> {
             self.len = at;
             ret
         }
-
-        todo!()
     }
 
     pub fn remove(&mut self, at: usize) -> T {
