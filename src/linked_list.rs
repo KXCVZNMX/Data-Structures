@@ -28,7 +28,7 @@ pub struct IterMut<'a, T> {
     head: Option<NonNull<Node<T>>>,
     tail: Option<NonNull<Node<T>>>,
     len: usize,
-    marker: PhantomData<&'a T>
+    marker: PhantomData<&'a mut T>
 }
 
 pub struct IntoIter<T, A: Allocator = Global> {
