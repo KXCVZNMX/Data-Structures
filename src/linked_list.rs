@@ -323,3 +323,11 @@ impl<T, A: Allocator> ExactSizeIterator for IntoIter<T, A> {
         self.list.len
     }
 }
+
+impl<T, A: Allocator> Extend<T> for LinkedList<T, A> {
+    fn extend<I: IntoIterator<Item = T>>(&mut self, iter: I) {
+        for item in iter {
+            self.push_back(item);
+        }
+    }
+}
