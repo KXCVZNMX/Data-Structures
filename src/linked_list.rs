@@ -230,7 +230,7 @@ impl<T, A: Allocator> LinkedList<T, A> {
         let split_node = split_node.expect("LinkedList::split_off(): split_node is in None");
 
         unsafe {
-            let new_head = (*split_node.as_ptr()).next.take().expect("LinkedList::split_off(): split_node is None");
+            let new_head = (*split_node.as_ptr()).next.take().expect("LinkedList::split_off(): split_node.next is None");
             (*new_head.as_ptr()).prev = None;
             let ret = LinkedList {
                 head: Some(new_head),
