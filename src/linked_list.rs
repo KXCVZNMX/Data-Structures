@@ -1,4 +1,7 @@
 use std::alloc::{Allocator, Global};
+use std::cmp::Ordering;
+use std::fmt::{Debug, Formatter};
+use std::hash::{Hash, Hasher};
 use std::marker::PhantomData;
 use std::mem;
 use std::ptr::NonNull;
