@@ -1,14 +1,14 @@
 use std::alloc::{Allocator, Global};
 use std::marker::PhantomData;
-use std::ptr::NonNull;
 use std::mem;
+use std::ptr::NonNull;
 
 pub struct LinkedList<T, A: Allocator = Global> {
     head: Option<NonNull<Node<T>>>,
     tail: Option<NonNull<Node<T>>>,
     len: usize,
     alloc: A,
-    marker: PhantomData<Box<Node<T>, A>>
+    marker: PhantomData<Box<Node<T>, A>>,
 }
 
 pub struct Node<T> {
@@ -21,23 +21,27 @@ pub struct Iter<'a, T> {
     head: Option<NonNull<Node<T>>>,
     tail: Option<NonNull<Node<T>>>,
     len: usize,
-    marker: PhantomData<&'a T>
+    marker: PhantomData<&'a T>,
 }
 
 pub struct IterMut<'a, T> {
     head: Option<NonNull<Node<T>>>,
     tail: Option<NonNull<Node<T>>>,
     len: usize,
-    marker: PhantomData<&'a mut T>
+    marker: PhantomData<&'a mut T>,
 }
 
 pub struct IntoIter<T, A: Allocator = Global> {
-    list: LinkedList<T, A>
+    list: LinkedList<T, A>,
 }
 
 impl<T> Node<T> {
     pub fn new(val: T) -> Node<T> {
-        Node { val, next: None, prev: None }
+        Node {
+            val,
+            next: None,
+            prev: None,
+        }
     }
 }
 
@@ -48,7 +52,7 @@ impl<T> LinkedList<T> {
             tail: None,
             len: 0,
             alloc: Global,
-            marker: PhantomData
+            marker: PhantomData,
         }
     }
 
@@ -76,7 +80,7 @@ impl<T, A: Allocator> LinkedList<T, A> {
             tail: None,
             len: 0,
             alloc,
-            marker: PhantomData
+            marker: PhantomData,
         }
     }
 
@@ -85,27 +89,19 @@ impl<T, A: Allocator> LinkedList<T, A> {
     }
 
     pub fn head(&self) -> Option<&T> {
-        unsafe {
-            Some(&(*self.head?.as_ptr()).val)
-        }
+        unsafe { Some(&(*self.head?.as_ptr()).val) }
     }
 
     pub fn head_mut(&mut self) -> Option<&mut T> {
-        unsafe {
-            Some(&mut (*self.head?.as_mut()).val)
-        }
+        unsafe { Some(&mut (*self.head?.as_mut()).val) }
     }
 
     pub fn tail(&self) -> Option<&T> {
-        unsafe {
-            Some(&(*self.tail?.as_ptr()).val)
-        }
+        unsafe { Some(&(*self.tail?.as_ptr()).val) }
     }
 
     pub fn tail_mut(&mut self) -> Option<&mut T> {
-        unsafe {
-            Some(&mut (*self.tail?.as_mut()).val)
-        }
+        unsafe { Some(&mut (*self.tail?.as_mut()).val) }
     }
 
     pub fn push_front(&mut self, val: T) {
@@ -175,11 +171,21 @@ impl<T, A: Allocator> LinkedList<T, A> {
     }
 
     pub fn iter(&self) -> Iter<'_, T> {
-        Iter { head: self.head, tail: self.tail, len: self.len, marker: PhantomData }
+        Iter {
+            head: self.head,
+            tail: self.tail,
+            len: self.len,
+            marker: PhantomData,
+        }
     }
 
     pub fn iter_mut(&mut self) -> IterMut<'_, T> {
-        IterMut { head: self.head, tail: self.tail, len: self.len, marker: PhantomData }
+        IterMut {
+            head: self.head,
+            tail: self.tail,
+            len: self.len,
+            marker: PhantomData,
+        }
     }
 
     pub fn into_iter(self) -> IntoIter<T, A> {
@@ -196,21 +202,25 @@ impl<T, A: Allocator> LinkedList<T, A> {
 
     pub fn contains(&self, val: &T) -> bool
     where
-        T: PartialEq<T>
+        T: PartialEq<T>,
     {
         self.iter().any(|e| e == val)
     }
 
     pub fn split_off(&mut self, at: usize) -> LinkedList<T, A>
-    where A: Clone
+    where
+        A: Clone,
     {
         let len = self.len();
-        assert!(at <= len, "LinkedList::split_off(): cannot split off, out of bounds");
+        assert!(
+            at <= len,
+            "LinkedList::split_off(): cannot split off, out of bounds"
+        );
 
         if at == 0 {
-            return mem::replace(self, Self::new_in(self.alloc.clone()))
+            return mem::replace(self, Self::new_in(self.alloc.clone()));
         } else if at == len {
-            return Self::new_in(self.alloc.clone())
+            return Self::new_in(self.alloc.clone());
         }
 
         let split_node = if at - 1 <= len - at {
@@ -230,14 +240,17 @@ impl<T, A: Allocator> LinkedList<T, A> {
         let split_node = split_node.expect("LinkedList::split_off(): split_node is in None");
 
         unsafe {
-            let new_head = (*split_node.as_ptr()).next.take().expect("LinkedList::split_off(): split_node.next is None");
+            let new_head = (*split_node.as_ptr())
+                .next
+                .take()
+                .expect("LinkedList::split_off(): split_node.next is None");
             (*new_head.as_ptr()).prev = None;
             let ret = LinkedList {
                 head: Some(new_head),
                 tail: self.tail,
                 len: len - at,
                 alloc: self.alloc.clone(),
-                marker: PhantomData
+                marker: PhantomData,
             };
             (*split_node.as_ptr()).next = None;
             self.tail = Some(split_node);
@@ -385,7 +398,7 @@ impl<T, A: Allocator> ExactSizeIterator for IntoIter<T, A> {
 }
 
 impl<'a, T: 'a + Copy, A: Allocator> Extend<&'a T> for LinkedList<T, A> {
-    fn extend<I: IntoIterator<Item=&'a T>>(&mut self, iter: I) {
+    fn extend<I: IntoIterator<Item = &'a T>>(&mut self, iter: I) {
         self.extend(iter.into_iter().cloned())
     }
 
