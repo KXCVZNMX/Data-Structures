@@ -20,6 +20,8 @@ struct Node<T> {
     prev: Option<NonNull<Node<T>>>,
 }
 
+#[must_use = "iterators are lazy and do nothing unless consumed"]
+#[derive(Clone)]
 pub struct Iter<'a, T> {
     head: Option<NonNull<Node<T>>>,
     tail: Option<NonNull<Node<T>>>,
