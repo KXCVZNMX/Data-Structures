@@ -384,9 +384,13 @@ impl<T, A: Allocator> ExactSizeIterator for IntoIter<T, A> {
     }
 }
 
-impl<'a, T, A: Allocator> Extend<&'a T> for LinkedList<T> {
-    fn extend<T: IntoIterator<Item=&'a T>>(&mut self, iter: T) {
+impl<'a, T: 'a + Copy, A: Allocator> Extend<&'a T> for LinkedList<T, A> {
+    fn extend<I: IntoIterator<Item=&'a T>>(&mut self, iter: I) {
         self.extend(iter.into_iter().cloned())
+    }
+
+    fn extend_one(&mut self, &item: &'a T) {
+        self.push_back(item);
     }
 }
 
@@ -395,5 +399,9 @@ impl<T, A: Allocator> Extend<T> for LinkedList<T, A> {
         for item in iter {
             self.push_back(item);
         }
+    }
+
+    fn extend_one(&mut self, item: T) {
+        self.push_back(item);
     }
 }

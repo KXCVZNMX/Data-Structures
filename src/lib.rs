@@ -1,4 +1,5 @@
 #![feature(allocator_api)]
+#![feature(extend_one)]
 
 pub mod linked_list;
 
