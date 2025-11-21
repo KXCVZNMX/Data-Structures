@@ -14,7 +14,7 @@ pub struct LinkedList<T, A: Allocator = Global> {
     marker: PhantomData<Box<Node<T>, A>>,
 }
 
-pub struct Node<T> {
+struct Node<T> {
     val: T,
     next: Option<NonNull<Node<T>>>,
     prev: Option<NonNull<Node<T>>>,
