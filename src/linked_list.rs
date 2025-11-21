@@ -418,3 +418,56 @@ impl<T, A: Allocator> Extend<T> for LinkedList<T, A> {
         self.push_back(item);
     }
 }
+
+impl<T> FromIterator<T> for LinkedList<T> {
+    fn from_iter<I: IntoIterator<Item=T>>(iter: I) -> Self {
+        let mut list = Self::new();
+        list.extend(iter);
+        list
+    }
+}
+
+impl<T, const N: usize> From<[T; N]> for LinkedList<T> {
+    fn from(value: [T; N]) -> Self {
+        Self::from_iter(value)
+    }
+}
+
+impl<T: Debug, A: Allocator> Debug for LinkedList<T, A> {
+    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+        f.debug_list().entries(self).finish()
+    }
+}
+
+impl<T: PartialEq, A: Allocator> PartialEq for LinkedList<T, A> {
+    fn eq(&self, other: &Self) -> bool {
+        self.len() == other.len() || self.iter().eq(other)
+    }
+
+    fn ne(&self, other: &Self) -> bool {
+        self.len() != other.len() || self.iter().ne(other)
+    }
+}
+
+impl<T: Eq, A: Allocator> Eq for LinkedList<T, A> { }
+
+impl<T: PartialOrd, A: Allocator> PartialOrd for LinkedList<T, A> {
+    fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
+        self.iter().partial_cmp(other)
+    }
+}
+
+impl<T: Ord, A: Allocator> Ord for LinkedList<T, A> {
+    fn cmp(&self, other: &Self) -> Ordering {
+        self.iter().cmp(other)
+    }
+}
+
+impl<T: Hash, A: Allocator> Hash for LinkedList<T, A>{
+    fn hash<H: Hasher>(&self, state: &mut H) {
+        self.len().hash(state);
+        for i in self {
+            i.hash(state);
+        }
+    }
+}
