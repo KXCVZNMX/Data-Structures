@@ -29,6 +29,8 @@ pub struct Iter<'a, T> {
     marker: PhantomData<&'a T>,
 }
 
+#[must_use = "iterators are lazy and do nothing unless consumed"]
+#[derive(Clone)]
 pub struct IterMut<'a, T> {
     head: Option<NonNull<Node<T>>>,
     tail: Option<NonNull<Node<T>>>,
