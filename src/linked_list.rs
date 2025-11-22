@@ -225,10 +225,6 @@ impl<T, A: Allocator> LinkedList<T, A> {
         }
     }
 
-    pub fn into_iter(self) -> IntoIter<T, A> {
-        IntoIter { list: self }
-    }
-
     pub fn is_empty(&self) -> bool {
         self.len == 0
     }
