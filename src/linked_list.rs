@@ -840,7 +840,7 @@ impl<T: Debug, A: Allocator> Debug for LinkedList<T, A> {
 
 impl<T: PartialEq, A: Allocator> PartialEq for LinkedList<T, A> {
     fn eq(&self, other: &Self) -> bool {
-        self.len() == other.len() || self.iter().eq(other)
+        self.len() == other.len() && self.iter().eq(other)
     }
 
     fn ne(&self, other: &Self) -> bool {
