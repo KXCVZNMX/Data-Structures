@@ -870,3 +870,10 @@ impl<T: Hash, A: Allocator> Hash for LinkedList<T, A> {
         }
     }
 }
+
+unsafe impl<T: Send, A: Allocator + Send> Send for LinkedList<T, A> {}
+unsafe impl<T: Sync, A: Allocator + Sync> Sync for LinkedList<T, A> {}
+unsafe impl<'a, T: Send> Send for Iter<'a, T> {}
+unsafe impl<'a, T: Sync> Sync for Iter<'a, T> {}
+unsafe impl<'a, T: Send> Send for IterMut<'a, T> {}
+unsafe impl<'a, T: Sync> Sync for IterMut<'a, T> {}
