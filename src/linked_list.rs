@@ -1,9 +1,9 @@
-//! This module provides a doubly-linked-list with owned nodes.
+//! This module provides a doubly linked-list with owned nodes.
 //!
-//! The `LinkedList` allows for popping and pushing from either ends of the list with constant O(1)
+//! The `LinkedList` allows for popping and pushing from either end of the list with constant O(1)
 //! time.
 //!
-//! This is implemented while reading both the `std::collections::LinkedList` library and *Learning
+//! This is implemented while reading both the [`std::collections::LinkedList`] library and *Learning
 //! Rust With Entirely Too Many Linked Lists* by rust-unofficial. This is a personal project to
 //! further learn Rust and its unsafe features.
 
@@ -15,9 +15,9 @@ use std::marker::PhantomData;
 use std::mem;
 use std::ptr::NonNull;
 
-/// A doubly-linked-list with owned nodes
+/// A doubly linked-list with owned nodes
 ///
-/// The `LinkedList` allows for popping and pushing from either ends of the list with constant O(1)
+/// The `LinkedList` allows for popping and pushing from either end of the list with constant *O(1)*
 /// time.
 ///
 /// A linked-list with a known list of items could be initialised through an array:
@@ -42,7 +42,7 @@ struct Node<T> {
 
 /// An iterator over the elements of a `LinkedList`.
 ///
-/// This `struct` is created by `[LinkedList::iter()]`, see its documentation for more
+/// This `struct` is created by [`LinkedList::iter()`], see its documentation for more
 #[must_use = "iterators are lazy and do nothing unless consumed"]
 #[derive(Clone)]
 pub struct Iter<'a, T> {
@@ -54,7 +54,7 @@ pub struct Iter<'a, T> {
 
 /// A mutable iterator over the elements of a `LinkedList`.
 ///
-/// This `struct` is created by `[LinkedList::iter_mut()]`, see its documentation for more
+/// This `struct` is created by [`LinkedList::iter_mut()`], see its documentation for more
 #[must_use = "iterators are lazy and do nothing unless consumed"]
 #[derive(Clone)]
 pub struct IterMut<'a, T> {
@@ -66,7 +66,7 @@ pub struct IterMut<'a, T> {
 
 /// An owning iterator over the elements of a `LinkedList`.
 ///
-/// This `struct` is created by `[LinkedList::into_iter()]`, see its documentation for more
+/// This `struct` is created by [`LinkedList::into_iter()`], see its documentation for more
 pub struct IntoIter<T, A: Allocator = Global> {
     list: LinkedList<T, A>,
 }
@@ -82,6 +82,7 @@ impl<T> Node<T> {
 }
 
 impl<T> LinkedList<T> {
+
     pub fn new() -> LinkedList<T> {
         LinkedList {
             head: None,
