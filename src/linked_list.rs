@@ -159,6 +159,8 @@ impl<T, A: Allocator> LinkedList<T, A> {
     ///
     /// let list: LinkedList<i32, _> = LinkedList::new_in(System);
     /// # }
+    #[cfg(feature = "linked_list_allocator_api")]
+    #[doc(cfg(feature = "linked_list_allocator_api"))]
     pub fn new_in(alloc: A) -> LinkedList<T, A> {
         LinkedList {
             head: None,
