@@ -1,3 +1,12 @@
+//! This module provides a doubly-linked-list with owned nodes.
+//!
+//! The `LinkedList` allows for popping and pushing from either ends of the list with constant O(1)
+//! time.
+//!
+//! This is implemented while reading both the `std::collections::LinkedList` library and *Learning
+//! Rust With Entirely Too Many Linked Lists* by rust-unofficial. This is a personal project to
+//! further learn Rust and its unsafe features.
+
 use std::alloc::{Allocator, Global};
 use std::cmp::Ordering;
 use std::fmt::{Debug, Formatter};
@@ -6,6 +15,17 @@ use std::marker::PhantomData;
 use std::mem;
 use std::ptr::NonNull;
 
+/// A doubly-linked-list with owned nodes
+///
+/// The `LinkedList` allows for popping and pushing from either ends of the list with constant O(1)
+/// time.
+///
+/// A linked-list with a known list of items could be initialised through an array:
+/// ```
+/// use crate::data_structure::linked_list::LinkedList;
+///
+/// let list = LinkedList::from([1, 2, 3, 4, 5]);
+/// ```
 pub struct LinkedList<T, A: Allocator = Global> {
     head: Option<NonNull<Node<T>>>,
     tail: Option<NonNull<Node<T>>>,
@@ -20,6 +40,9 @@ struct Node<T> {
     prev: Option<NonNull<Node<T>>>,
 }
 
+/// An iterator over the elements of a `LinkedList`.
+///
+/// This `struct` is created by `[LinkedList::iter()]`, see its documentation for more
 #[must_use = "iterators are lazy and do nothing unless consumed"]
 #[derive(Clone)]
 pub struct Iter<'a, T> {
@@ -29,6 +52,9 @@ pub struct Iter<'a, T> {
     marker: PhantomData<&'a T>,
 }
 
+/// A mutable iterator over the elements of a `LinkedList`.
+///
+/// This `struct` is created by `[LinkedList::iter_mut()]`, see its documentation for more
 #[must_use = "iterators are lazy and do nothing unless consumed"]
 #[derive(Clone)]
 pub struct IterMut<'a, T> {
@@ -38,6 +64,9 @@ pub struct IterMut<'a, T> {
     marker: PhantomData<&'a mut T>,
 }
 
+/// An owning iterator over the elements of a `LinkedList`.
+///
+/// This `struct` is created by `[LinkedList::into_iter()]`, see its documentation for more
 pub struct IntoIter<T, A: Allocator = Global> {
     list: LinkedList<T, A>,
 }
