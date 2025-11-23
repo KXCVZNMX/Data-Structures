@@ -7,7 +7,6 @@
 //! Rust With Entirely Too Many Linked Lists*](https://rust-unofficial.github.io/too-many-lists/)
 //! by rust-unofficial. This is a personal project to further learn Rust and its unsafe features.
 
-use std::alloc::{Allocator, Global};
 use std::cmp::Ordering;
 use std::fmt::{Debug, Formatter};
 use std::hash::{Hash, Hasher};
@@ -26,12 +25,11 @@ use std::ptr::NonNull;
 ///
 /// let list = LinkedList::from([1, 2, 3, 4, 5]);
 /// ```
-pub struct LinkedList<T, A: Allocator = Global> {
+pub struct LinkedList<T> {
     head: Option<NonNull<Node<T>>>,
     tail: Option<NonNull<Node<T>>>,
     len: usize,
-    alloc: A,
-    marker: PhantomData<Box<Node<T>, A>>,
+    marker: PhantomData<T>,
 }
 
 struct Node<T> {
@@ -67,8 +65,8 @@ pub struct IterMut<'a, T> {
 /// An owning iterator over the elements of a `LinkedList`.
 ///
 /// This `struct` is created by [`LinkedList::into_iter()`], see its documentation for more.
-pub struct IntoIter<T, A: Allocator = Global> {
-    list: LinkedList<T, A>,
+pub struct IntoIter<T> {
+    list: LinkedList<T>,
 }
 
 impl<T> Node<T> {
@@ -96,7 +94,6 @@ impl<T> LinkedList<T> {
             head: None,
             tail: None,
             len: 0,
-            alloc: Global,
             marker: PhantomData,
         }
     }
@@ -141,33 +138,6 @@ impl<T> LinkedList<T> {
                 self.tail = other.tail.take();
                 self.len += mem::replace(&mut other.len, 0);
             }
-        }
-    }
-}
-
-impl<T, A: Allocator> LinkedList<T, A> {
-    /// Creates a new, empty `LinkedList<T, A>`.
-    ///
-    /// # Examples
-    ///
-    /// ```
-    /// # fn foo() {
-    /// #![feature(allocator_api)]
-    ///
-    /// use std::alloc::System;
-    /// use crate::data_structure::linked_list::LinkedList;
-    ///
-    /// let list: LinkedList<i32, _> = LinkedList::new_in(System);
-    /// # }
-    #[cfg(feature = "allocator_api")]
-    #[doc(cfg(feature = "allocator_api"))]
-    pub fn new_in(alloc: A) -> LinkedList<T, A> {
-        LinkedList {
-            head: None,
-            tail: None,
-            len: 0,
-            alloc,
-            marker: PhantomData,
         }
     }
 
@@ -318,7 +288,7 @@ impl<T, A: Allocator> LinkedList<T, A> {
     /// ```
     pub fn push_front(&mut self, val: T) {
         unsafe {
-            let new_node = NonNull::from(Box::leak(Box::new_in(Node::new(val), &self.alloc)));
+            let new_node = NonNull::from(Box::leak(Box::new(Node::new(val))));
             if let Some(old_head) = self.head {
                 (*old_head.as_ptr()).prev = Some(new_node);
                 (*new_node.as_ptr()).next = Some(old_head);
@@ -352,7 +322,7 @@ impl<T, A: Allocator> LinkedList<T, A> {
     /// ```
     pub fn push_back(&mut self, val: T) {
         unsafe {
-            let new_node = NonNull::from(Box::leak(Box::new_in(Node::new(val), &self.alloc)));
+            let new_node = NonNull::from(Box::leak(Box::new(Node::new(val))));
             if let Some(old_tail) = self.tail {
                 (*old_tail.as_ptr()).next = Some(new_node);
                 (*new_node.as_ptr()).prev = Some(old_tail);
@@ -390,7 +360,7 @@ impl<T, A: Allocator> LinkedList<T, A> {
     pub fn pop_front(&mut self) -> Option<T> {
         unsafe {
             self.head.map(|node| {
-                let box_node = Box::from_raw_in(node.as_ptr(), &self.alloc);
+                let box_node = Box::from_raw(node.as_ptr());
                 let result = box_node.val;
 
                 self.head = box_node.next;
@@ -432,7 +402,7 @@ impl<T, A: Allocator> LinkedList<T, A> {
     pub fn pop_back(&mut self) -> Option<T> {
         unsafe {
             self.tail.map(|node| {
-                let box_node = Box::from_raw_in(node.as_ptr(), &self.alloc);
+                let box_node = Box::from_raw(node.as_ptr());
                 let result = box_node.val;
 
                 self.head = box_node.prev;
@@ -506,7 +476,7 @@ impl<T, A: Allocator> LinkedList<T, A> {
         }
     }
 
-    fn into_iter(self) -> IntoIter<T, A> {
+    fn into_iter(self) -> IntoIter<T> {
         IntoIter { list: self }
     }
 
@@ -529,7 +499,7 @@ impl<T, A: Allocator> LinkedList<T, A> {
         self.len == 0
     }
 
-    /// Clears all nodes in the list, acts the exact same to `drop()`.
+    /// Clears all nodes in the list. this acts the exact same as `drop()`.
     ///
     /// This operation should compute in *O(n)* time.
     ///
@@ -606,10 +576,7 @@ impl<T, A: Allocator> LinkedList<T, A> {
     /// assert_eq!(split.pop_front(), None);
     /// # }
     /// ```
-    pub fn split_off(&mut self, at: usize) -> LinkedList<T, A>
-    where
-        A: Clone,
-    {
+    pub fn split_off(&mut self, at: usize) -> LinkedList<T> {
         let len = self.len();
         assert!(
             at <= len,
@@ -617,9 +584,9 @@ impl<T, A: Allocator> LinkedList<T, A> {
         );
 
         if at == 0 {
-            return mem::replace(self, Self::new_in(self.alloc.clone()));
+            return mem::replace(self, Self::new());
         } else if at == len {
-            return Self::new_in(self.alloc.clone());
+            return Self::new();
         }
 
         let split_node = if at - 1 <= len - at {
@@ -648,7 +615,6 @@ impl<T, A: Allocator> LinkedList<T, A> {
                 head: Some(new_head),
                 tail: self.tail,
                 len: len - at,
-                alloc: self.alloc.clone(),
                 marker: PhantomData,
             };
             (*split_node.as_ptr()).next = None;
@@ -659,13 +625,13 @@ impl<T, A: Allocator> LinkedList<T, A> {
     }
 }
 
-impl<T, A: Allocator> Drop for LinkedList<T, A> {
+impl<T> Drop for LinkedList<T> {
     fn drop(&mut self) {
         while let Some(_) = self.pop_front() {}
     }
 }
 
-impl<'a, T, A: Allocator> IntoIterator for &'a LinkedList<T, A> {
+impl<'a, T> IntoIterator for &'a LinkedList<T> {
     type Item = &'a T;
     type IntoIter = Iter<'a, T>;
 
@@ -674,16 +640,16 @@ impl<'a, T, A: Allocator> IntoIterator for &'a LinkedList<T, A> {
     }
 }
 
-impl<T, A: Allocator> IntoIterator for LinkedList<T, A> {
+impl<T> IntoIterator for LinkedList<T> {
     type Item = T;
-    type IntoIter = IntoIter<T, A>;
+    type IntoIter = IntoIter<T>;
 
     fn into_iter(self) -> Self::IntoIter {
         self.into_iter()
     }
 }
 
-impl<'a, T, A: Allocator> IntoIterator for &'a mut LinkedList<T, A> {
+impl<'a, T> IntoIterator for &'a mut LinkedList<T> {
     type Item = &'a mut T;
     type IntoIter = IterMut<'a, T>;
 
@@ -772,7 +738,7 @@ impl<'a, T> ExactSizeIterator for IterMut<'a, T> {
     }
 }
 
-impl<T, A: Allocator> Iterator for IntoIter<T, A> {
+impl<T> Iterator for IntoIter<T> {
     type Item = T;
 
     fn next(&mut self) -> Option<Self::Item> {
@@ -784,19 +750,19 @@ impl<T, A: Allocator> Iterator for IntoIter<T, A> {
     }
 }
 
-impl<T, A: Allocator> DoubleEndedIterator for IntoIter<T, A> {
+impl<T> DoubleEndedIterator for IntoIter<T> {
     fn next_back(&mut self) -> Option<Self::Item> {
         self.list.pop_back()
     }
 }
 
-impl<T, A: Allocator> ExactSizeIterator for IntoIter<T, A> {
+impl<T> ExactSizeIterator for IntoIter<T> {
     fn len(&self) -> usize {
         self.list.len
     }
 }
 
-impl<'a, T: 'a + Copy, A: Allocator> Extend<&'a T> for LinkedList<T, A> {
+impl<'a, T: 'a + Copy> Extend<&'a T> for LinkedList<T> {
     fn extend<I: IntoIterator<Item = &'a T>>(&mut self, iter: I) {
         self.extend(iter.into_iter().cloned())
     }
@@ -806,7 +772,7 @@ impl<'a, T: 'a + Copy, A: Allocator> Extend<&'a T> for LinkedList<T, A> {
     }
 }
 
-impl<T, A: Allocator> Extend<T> for LinkedList<T, A> {
+impl<T> Extend<T> for LinkedList<T> {
     fn extend<I: IntoIterator<Item = T>>(&mut self, iter: I) {
         for item in iter {
             self.push_back(item);
@@ -832,13 +798,13 @@ impl<T, const N: usize> From<[T; N]> for LinkedList<T> {
     }
 }
 
-impl<T: Debug, A: Allocator> Debug for LinkedList<T, A> {
+impl<T: Debug> Debug for LinkedList<T> {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
         f.debug_list().entries(self).finish()
     }
 }
 
-impl<T: PartialEq, A: Allocator> PartialEq for LinkedList<T, A> {
+impl<T: PartialEq> PartialEq for LinkedList<T> {
     fn eq(&self, other: &Self) -> bool {
         self.len() == other.len() && self.iter().eq(other)
     }
@@ -848,21 +814,21 @@ impl<T: PartialEq, A: Allocator> PartialEq for LinkedList<T, A> {
     }
 }
 
-impl<T: Eq, A: Allocator> Eq for LinkedList<T, A> {}
+impl<T: Eq> Eq for LinkedList<T> {}
 
-impl<T: PartialOrd, A: Allocator> PartialOrd for LinkedList<T, A> {
+impl<T: PartialOrd> PartialOrd for LinkedList<T> {
     fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
         self.iter().partial_cmp(other)
     }
 }
 
-impl<T: Ord, A: Allocator> Ord for LinkedList<T, A> {
+impl<T: Ord> Ord for LinkedList<T> {
     fn cmp(&self, other: &Self) -> Ordering {
         self.iter().cmp(other)
     }
 }
 
-impl<T: Hash, A: Allocator> Hash for LinkedList<T, A> {
+impl<T: Hash> Hash for LinkedList<T> {
     fn hash<H: Hasher>(&self, state: &mut H) {
         self.len().hash(state);
         for i in self {
@@ -881,8 +847,8 @@ impl<T: Clone> Clone for LinkedList<T> {
     }
 }
 
-unsafe impl<T: Send, A: Allocator + Send> Send for LinkedList<T, A> {}
-unsafe impl<T: Sync, A: Allocator + Sync> Sync for LinkedList<T, A> {}
+unsafe impl<T: Send + Send> Send for LinkedList<T> {}
+unsafe impl<T: Sync + Sync> Sync for LinkedList<T> {}
 unsafe impl<'a, T: Send> Send for Iter<'a, T> {}
 unsafe impl<'a, T: Sync> Sync for Iter<'a, T> {}
 unsafe impl<'a, T: Send> Send for IterMut<'a, T> {}
