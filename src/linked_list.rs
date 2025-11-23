@@ -871,6 +871,16 @@ impl<T: Hash, A: Allocator> Hash for LinkedList<T, A> {
     }
 }
 
+impl<T: Clone> Clone for LinkedList<T> {
+    fn clone(&self) -> Self {
+        let mut new_list = Self::new();
+        for item in self {
+            new_list.push_back(item.clone());
+        }
+        new_list
+    }
+}
+
 unsafe impl<T: Send, A: Allocator + Send> Send for LinkedList<T, A> {}
 unsafe impl<T: Sync, A: Allocator + Sync> Sync for LinkedList<T, A> {}
 unsafe impl<'a, T: Send> Send for Iter<'a, T> {}

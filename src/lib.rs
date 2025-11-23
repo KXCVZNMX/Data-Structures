@@ -249,25 +249,25 @@ mod test {
         assert_eq!(format!("{:?}", list), r#"["just", "one", "test", "more"]"#);
     }
 
-    // #[test]
-    // fn test_hashmap() {
-    //     // Check that HashMap works with this as a key
-    //
-    //     let list1: LinkedList<i32> = (0..10).collect();
-    //     let list2: LinkedList<i32> = (1..11).collect();
-    //     let mut map = std::collections::HashMap::new();
-    //
-    //     assert_eq!(map.insert(list1.clone(), "list1"), None);
-    //     assert_eq!(map.insert(list2.clone(), "list2"), None);
-    //
-    //     assert_eq!(map.len(), 2);
-    //
-    //     assert_eq!(map.get(&list1), Some(&"list1"));
-    //     assert_eq!(map.get(&list2), Some(&"list2"));
-    //
-    //     assert_eq!(map.remove(&list1), Some("list1"));
-    //     assert_eq!(map.remove(&list2), Some("list2"));
-    //
-    //     assert!(map.is_empty());
-    // }
+    #[test]
+    fn test_hashmap() {
+        // Check that HashMap works with this as a key
+    
+        let list1: LinkedList<i32> = (0..10).collect();
+        let list2: LinkedList<i32> = (1..11).collect();
+        let mut map = std::collections::HashMap::new();
+    
+        assert_eq!(map.insert(list1.clone(), "list1"), None);
+        assert_eq!(map.insert(list2.clone(), "list2"), None);
+    
+        assert_eq!(map.len(), 2);
+    
+        assert_eq!(map.get(&list1), Some(&"list1"));
+        assert_eq!(map.get(&list2), Some(&"list2"));
+    
+        assert_eq!(map.remove(&list1), Some("list1"));
+        assert_eq!(map.remove(&list2), Some("list2"));
+    
+        assert!(map.is_empty());
+    }
 }
