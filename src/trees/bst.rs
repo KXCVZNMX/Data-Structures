@@ -125,7 +125,9 @@ impl<T: Ord> BST<T> {
 
     pub fn inorder<'a>(&'a self) -> Vec<(usize, &'a T)> {
         let mut v: Vec<(usize, &'a T)> = Vec::new();
-        self.root.as_ref().map(|root| Self::inorder_traversal(root, 0, &mut v));
+        self.root
+            .as_ref()
+            .map(|root| Self::inorder_traversal(root, 0, &mut v));
         v
     }
 }
