@@ -84,7 +84,6 @@ impl<T: Ord> BST<T> {
             Self::inorder_traversal(right, level + 1, v);
         }
     }
-
 }
 
 impl<T: Ord> BST<T> {
@@ -156,8 +155,11 @@ mod tests {
         assert_eq!(bst.min(), Some(&5));
         assert_eq!(bst.max(), Some(&5));
 
-        let inorder: Vec<(usize, i32)> =
-            bst.inorder().into_iter().map(|(lvl, v)| (lvl, *v)).collect();
+        let inorder: Vec<(usize, i32)> = bst
+            .inorder()
+            .into_iter()
+            .map(|(lvl, v)| (lvl, *v))
+            .collect();
         assert_eq!(inorder, vec![(0, 5)]);
     }
 
@@ -191,18 +193,13 @@ mod tests {
             bst.insert(v);
         }
 
-        let got: Vec<(usize, i32)> =
-            bst.inorder().into_iter().map(|(lvl, v)| (lvl, *v)).collect();
+        let got: Vec<(usize, i32)> = bst
+            .inorder()
+            .into_iter()
+            .map(|(lvl, v)| (lvl, *v))
+            .collect();
 
-        let expected = vec![
-            (2, 2),
-            (1, 3),
-            (2, 4),
-            (0, 5),
-            (2, 6),
-            (1, 7),
-            (2, 8),
-        ];
+        let expected = vec![(2, 2), (1, 3), (2, 4), (0, 5), (2, 6), (1, 7), (2, 8)];
 
         assert_eq!(got, expected);
     }
@@ -215,15 +212,13 @@ mod tests {
             bst.insert(v);
         }
 
-        let got: Vec<(usize, i32)> =
-            bst.inorder().into_iter().map(|(lvl, v)| (lvl, *v)).collect();
+        let got: Vec<(usize, i32)> = bst
+            .inorder()
+            .into_iter()
+            .map(|(lvl, v)| (lvl, *v))
+            .collect();
 
-        let expected = vec![
-            (0, 1),
-            (1, 2),
-            (2, 3),
-            (3, 4),
-        ];
+        let expected = vec![(0, 1), (1, 2), (2, 3), (3, 4)];
 
         assert_eq!(got, expected);
     }
